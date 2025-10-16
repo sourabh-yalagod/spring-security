@@ -44,9 +44,10 @@ public class AuthUtil {
     }
 
     public String getAuthProviderId(OAuth2User oAuth2User, String registrationId) {
+        System.out.println("47 : "+oAuth2User);
         return switch (registrationId.toLowerCase()) {
             case "google" -> oAuth2User.getAttribute("sub");
-            case "github" -> oAuth2User.getAttribute("id");
+            case "github" -> oAuth2User.getAttribute("id").toString();
             default -> throw new IllegalStateException("Unexpected value: " + registrationId.toLowerCase());
         };
     }
@@ -54,9 +55,13 @@ public class AuthUtil {
     public String getIdentifierFromOAuth2Object(OAuth2User oAuth2User, String registrationId) {
         String email = oAuth2User.getAttribute("email");
         if (email != null && !email.isEmpty()) return email;
+        String name = oAuth2User.getAttribute("name");
+        if (name != null && !name.isEmpty()) return name;
+        String username = oAuth2User.getAttribute("login");
+        if (username != null && !username.isEmpty()) return username;
         return switch (registrationId.toLowerCase()) {
             case "google" -> oAuth2User.getAttribute("sub");
-            case "github" -> oAuth2User.getAttribute("id");
+            case "github" -> oAuth2User.getAttribute("id").toString();
             default -> registrationId.toLowerCase();
         };
     }

@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -27,9 +28,11 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    @Transactional
     public LoginResponseDto handleOAuth2User(OAuth2User oAuth2User, String registrationId) throws Exception {
         ProviderType authProvider = authUtil.getAuthProvider(registrationId);
         String authProviderId = authUtil.getAuthProviderId(oAuth2User, registrationId);
+        System.out.println("authProvider : " + authProvider + "authProviderId : " + authProviderId);
         UserEntity user = userRepository.findByProviderAndProviderId(authProvider, authProviderId);
         String email = oAuth2User.getAttribute("email");
         UserEntity userByEmail = userRepository.findByUsername(email);
@@ -54,7 +57,7 @@ public class UserService implements UserDetailsService {
         String refreshToken = authUtil.generateJwtToken(user.getUsername(), 60 * 24 * 7);
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
-        LoginResponseDto loginResponseDto = new LoginResponseDto(user.getId(), user.getRefreshToken(), refreshToken);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(user.getId(), accessToken, user.getRefreshToken());
         System.out.println("LoginResponseDto : " + loginResponseDto);
         return loginResponseDto;
     }

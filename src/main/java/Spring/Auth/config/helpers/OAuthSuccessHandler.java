@@ -33,10 +33,9 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String registrationId = token.getAuthorizedClientRegistrationId();
         try {
             LoginResponseDto loginResponseDto = userService.handleOAuth2User(oAuth2User, registrationId);
-
+            System.out.println("36 : " + loginResponseDto);
             response.setStatus(HttpServletResponse.SC_CREATED);
             response.setContentType("application/json");
-
             String jsonResponse = objectMapper.writeValueAsString(loginResponseDto);
             response.getWriter().write(jsonResponse);
             response.getWriter().flush();
