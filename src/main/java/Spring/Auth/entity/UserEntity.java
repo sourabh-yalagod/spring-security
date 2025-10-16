@@ -1,7 +1,9 @@
 package Spring.Auth.entity;
 
+import Spring.Auth.ProviderType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "users")
 public class UserEntity implements UserDetails {
     @Id
@@ -22,6 +25,12 @@ public class UserEntity implements UserDetails {
 
     @Column(unique = true)
     private String username;
+
+    @Column(name = "column_name")
+    private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    private ProviderType provider;
 
     private String password;
 

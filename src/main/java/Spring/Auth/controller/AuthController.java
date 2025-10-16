@@ -5,7 +5,7 @@ import Spring.Auth.dtos.LoginResponseDto;
 import Spring.Auth.dtos.RegisterUserDto;
 import Spring.Auth.entity.UserEntity;
 import Spring.Auth.repository.UserRepository;
-import Spring.Auth.util.JwtUtil;
+import Spring.Auth.types.AuthUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final JwtUtil jwtUtil;
+    private final AuthUtil authUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
-    public AuthController(JwtUtil jwtUtil, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
-        this.jwtUtil = jwtUtil;
+    public AuthController(AuthUtil authUtil, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
+        this.authUtil = authUtil;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -50,8 +50,8 @@ public class AuthController {
         );
         System.out.println(authentication);
         System.out.println(authentication.isAuthenticated());
-        String accessToken = jwtUtil.generateJwtToken(loginPayload.getUsername(), 5);
-        String RefreshToken = jwtUtil.generateJwtToken(loginPayload.getUsername(), 60 * 24 * 7);
+        String accessToken = authUtil.generateJwtToken(loginPayload.getUsername(), 5);
+        String RefreshToken = authUtil.generateJwtToken(loginPayload.getUsername(), 60 * 24 * 7);
         if (!authentication.isAuthenticated()) {
             throw new RuntimeException("User authentication failed....!");
         }

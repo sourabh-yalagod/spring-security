@@ -1,31 +1,31 @@
 package Spring.Auth.config;
 
+import Spring.Auth.config.helpers.OAuthSuccessHandler;
 import Spring.Auth.filter.JwtAuthFilter;
 import Spring.Auth.service.UserService;
-import Spring.Auth.util.JwtUtil;
+import Spring.Auth.types.AuthUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
-    private final JwtUtil jwtUtil;
+    private final AuthUtil authUtil;
     private final UserService userService;
-
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, JwtUtil jwtUtil, UserService userService) {
+    private final OAuthSuccessHandler oAuthSuccessHandler;
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, AuthUtil authUtil, UserService userService, OAuthSuccessHandler oAuthSuccessHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
-        this.jwtUtil = jwtUtil;
+        this.authUtil = authUtil;
         this.userService = userService;
+        this.oAuthSuccessHandler = oAuthSuccessHandler;
     }
 
     @Bean
@@ -47,16 +47,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth -> oauth
-                        .successHandler((request, response, authentication) -> {
-                            var principal = (DefaultOAuth2User) authentication.getPrincipal();
-                            String email = principal.getAttribute("email");
-
-                            // generate JWT using your JwtService
-                            String jwtToken = jwtUtil.generateJwtToken(email, 5);
-                            System.out.println("TOKEN : "+jwtToken);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"token\": \"" + jwtToken + "\"}");
-                        })
+                        .successHandler(oAuthSuccessHandler)
                         .failureHandler((request, response, exception) -> {
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\": \"" + exception.getMessage() + "\"}");

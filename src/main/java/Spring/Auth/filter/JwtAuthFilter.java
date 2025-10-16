@@ -1,6 +1,6 @@
 package Spring.Auth.filter;
 
-import Spring.Auth.util.JwtUtil;
+import Spring.Auth.types.AuthUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,10 +12,10 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
+    private final AuthUtil authUtil;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public JwtAuthFilter(AuthUtil authUtil) {
+        this.authUtil = authUtil;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         String token = authorization.split("Bearer ")[1];
-        boolean isValidToken = jwtUtil.validateToken(token);
+        boolean isValidToken = authUtil.validateToken(token);
         if (!isValidToken) {
             if (!isValidToken) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
